@@ -1,7 +1,7 @@
 """config.py — Money IQ newsletter configuration."""
 import os
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 NEWSLETTER_NAME        = "Money IQ"
 NEWSLETTER_DIR         = "money-iq"
