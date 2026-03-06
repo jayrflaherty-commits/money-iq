@@ -1,0 +1,37 @@
+name: Money IQ — Daily Send
+on:
+  schedule:
+    - cron: '0 12 * * *'   # 8:00 AM ET
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Override date (YYYY-MM-DD)'
+        required: false
+      draft:
+        description: 'Post as draft only'
+        required: false
+        default: 'false'
+jobs:
+  send-newsletter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: money-iq
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install anthropic requests python-dotenv pytz
+      - name: Run Money IQ generator
+        env:
+          ANTHROPIC_API_KEY:             ${{ secrets.ANTHROPIC_API_KEY }}
+          MONEY_IQ_BEEHIIV_API_KEY:      ${{ secrets.MONEY_IQ_BEEHIIV_API_KEY }}
+          MONEY_IQ_BEEHIIV_PUBLICATION_ID: ${{ secrets.MONEY_IQ_BEEHIIV_PUBLICATION_ID }}
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.date }}" != "" ]; then ARGS="$ARGS --date ${{ github.event.inputs.date }}"; fi
+          if [ "${{ github.event.inputs.draft }}" == "true" ]; then ARGS="$ARGS --draft"; fi
+          python main.py $ARGS
+      - if: failure()
+        run: echo "Money IQ send failed"
