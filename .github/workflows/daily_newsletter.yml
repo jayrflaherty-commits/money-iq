@@ -1,7 +1,8 @@
 name: Money IQ — Daily Send
+
 on:
   schedule:
-    - cron: '0 12 * * *'   # 8:00 AM ET
+    - cron: '0 12 * * *'   # 8:00 AM ET (12:00 UTC)
   workflow_dispatch:
     inputs:
       date:
@@ -11,27 +12,38 @@ on:
         description: 'Post as draft only'
         required: false
         default: 'false'
+      preview:
+        description: 'Preview only (no post)'
+        required: false
+        default: 'false'
+
 jobs:
   send-newsletter:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: money-iq
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install anthropic requests python-dotenv pytz
+
+      - name: Install dependencies
+        run: pip install anthropic requests python-dotenv pytz
+
       - name: Run Money IQ generator
         env:
-          ANTHROPIC_API_KEY:             ${{ secrets.ANTHROPIC_API_KEY }}
-          MONEY_IQ_BEEHIIV_API_KEY:      ${{ secrets.MONEY_IQ_BEEHIIV_API_KEY }}
-          MONEY_IQ_BEEHIIV_PUBLICATION_ID: ${{ secrets.MONEY_IQ_BEEHIIV_PUBLICATION_ID }}
+          ANTHROPIC_API_KEY:               ${{ secrets.ANTHROPIC_API_KEY }}
+          MONEY_IQ_BEEHIIV_API_KEY:        ${{ secrets.BEEHIIV_API_KEY }}
+          MONEY_IQ_BEEHIIV_PUBLICATION_ID: ${{ secrets.BEEHIIV_PUBLICATION_ID }}
         run: |
           ARGS=""
           if [ "${{ github.event.inputs.date }}" != "" ]; then ARGS="$ARGS --date ${{ github.event.inputs.date }}"; fi
           if [ "${{ github.event.inputs.draft }}" == "true" ]; then ARGS="$ARGS --draft"; fi
+          if [ "${{ github.event.inputs.preview }}" == "true" ]; then ARGS="$ARGS --preview"; fi
           python main.py $ARGS
-      - if: failure()
-        run: echo "Money IQ send failed"
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "Money IQ send failed — check logs"
