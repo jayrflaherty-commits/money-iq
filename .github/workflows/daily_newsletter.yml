@@ -2,7 +2,7 @@ name: Money IQ — Daily Send
 
 on:
   schedule:
-    - cron: '0 12 * * *'   # 8:00 AM ET (12:00 UTC)
+    - cron: '20 4 * * *'   # 11 PM ET (generate night before, schedules for next morning)   # 8:00 AM ET (12:00 UTC)
   workflow_dispatch:
     inputs:
       date:

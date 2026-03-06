@@ -7,6 +7,7 @@ NEWSLETTER_NAME        = "Money IQ"
 NEWSLETTER_DIR         = "money-iq"
 TAGLINE                = "Sharp personal finance for ambitious adults"
 SEND_HOUR              = 8
+SEND_MINUTE            = 0
 TIMEZONE               = "America/New_York"
 ANTHROPIC_API_KEY      = os.getenv("ANTHROPIC_API_KEY", "")
 BEEHIIV_API_KEY        = os.getenv("MONEY_IQ_BEEHIIV_API_KEY", os.getenv("BEEHIIV_API_KEY", ""))
